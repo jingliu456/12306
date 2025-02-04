@@ -1,0 +1,70 @@
+server:
+  port: 9004
+
+spring:
+  application:
+    name: index12306-pay${unique-name:}-service
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-config.yaml
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.201.130:8848
+      password: nacos
+      username: nacos
+    sentinel:
+      transport:
+        dashboard: 192.168.201.130:8686
+        port: 8719
+  data:
+    redis:
+      host: 192.168.201.130
+      port: 6379
+      password: 123456
+
+rocketmq:
+  name-server: 192.168.201.130:9876
+  producer:
+    group: index12306_pay-service_common-message-execute_pg
+    send-message-timeout: 2000
+    retry-times-when-send-failed: 1
+    retry-times-when-send-async-failed: 1
+
+pay:
+  alipay:
+    alipay-public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAooJOXFTM14nhHE/ALuK7dV6t7cRnBsFbWdq5aiQqgbnXAfVhClaU9rxEczF1MBZ/fCcccNcskt02243hb2/kYM7ks4BnjEfs+ygA53iU22uycGeYNHiaogXx/gaFaoM21QWUVJuED3j5pUQRC4MyeZR78armcFHeyBmrX5GZdWvxbaXbHdyFGG/zFX+tHtor8E7s8gGEbsttSAaGLBLNO8YgqH3sLRzyOCw/xcq3On9ja9wTdGGHevzfqsiCQYcDhZwWK/zpw/ljTJgW3+N32CYvo+Gg1XVJecSDF7GRHPzCGaJPPbgyM+ixkJxLT/OvBm5JDLFiXP6sOoz5ACrFWQIDAQAB
+    app-id: 9021000141698708
+    charset: UTF8
+    format: json
+    notify-url: http://ems8b7.natappfree.cc/api/pay-service/callback/alipay
+    private-key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCRFNmayrvLh0ijsKvvfw+wYCaxwDSs1aiHCIAzXQ+bmvAC+iM+j4ssBCSbSsXY2A1i3rCIvOFRSptSvM6T3s7qk4RlhTOhz586w+Alb5R9cuvMGvlAWwRce0uNpTWyyBAm0Y5OUMCBr1lqcY4mREzfF8N3sj/8Gd8R1TTr/rMPTRyWTAvoQCmd0JZApVwt+6B2Sp/0hxem7wi5FBqXHU2veNkEmFlofA+9dr5KmCOp8hWVa6T+ONTZNq+SCpt2HiqUo6meAtsCr4UUhJU1wR5U9PAUjUlK5yfzNZweK8SThUHgB90NBagc14hKMz0Gv0nFG7/WHYypg4/40CiwyyXDAgMBAAECggEAUJB8ejnEaTQ5wTR1dexgIPhz5FcwqR2IlVvCHUO7TBSQ3YZcFfyOMyYl0dqG3XC0lkfFTllc4dCFSj+wk2qyCo9agSmjz2JFMNPe38sDcVpk2JXN/c/NLzIEdabdl+cDGRtbY9/x1tIx3Css3dElwukmUYy5fVw8hGGaHsb0VjUGDuOXVHL+PQUtLroaNQlzPe6DcO2fWWZ5EuOpkzraFh5cXpwZsksViyit/UNshxAkdLVaPXaav+ObbTPgVA9JZhDBVKGZFWMCYv5gMKCkipOFzyWscoTn22oHQOyreVmlkQgAmJcfZkL7kLsfepvxP3y5EIAGHxnkJIRLO4HzwQKBgQD4RPmsN1HoANi72sMHSNl3rNFcS5reMuBK1bZ67MHMawQZyBuZ2kzxGXXiRYkl9v2OKrxspfYzWO7k/zYdvvYWf4unKJ2QZM2xwgbTRkjq+JA6RqNnWqH705bEf7xQy1qcE9yombB8yEzWXU7tIfA5U3WcnyEfxqUnXs3wdjwI4QKBgQCVmVWmdpCN6ESEzEt1wid34NKDXAtSOmJrLt+79xzpTiHSsYOTkSk/RzZKhbTRzSym8+BKuD6iRXphQc5+fVu203D/fMSkyGIBpnYqjo1GNhrq3dX+C90FAqzQk+8EUOC0FiULohsZ3H+YmMcTcyNoH6vU26F1zgpCQv22YGjPIwKBgBcQEUF2Qh2TNo7823Epy0nau/ge7dwGTd+lyrXQmJAswMzEUgwQw2UCQHksjHkCYLt8LNTK9fv/HvIW4ygQPTwJzSdSFpD7TEBfDdNCjDOHs542QaewO6vxE+hdFVlMCrbFAZKH9GUjFkAzmslchbxNjHdoMOOKyHzHycm0sg8BAoGAV31tkgUVVWjZabDxENWTr5BUjW5vUI/Er1qijpNe3TNMpKQch1kF/nPvVHYN4gVUb++A5TILr2tivy51TZSS5sGR/FlDx/tJFh38TbdA+Cb8Zw+F7yWRBTUjTHi3+JY0VB3/XGZZ4y4JkX0IMF/N/T9IhxxLuVHevhHfv6FyqnECgYEA4sOH4YiOTmW9wJZ9xXzYVUV864f347nUqgrVZordBu8JvQOH7uXoH9xXQiTRb8kqrBctWS8wqK3zLRgkNPBYMCzuZRD70awTMBAoCSfJ5idK5krSsoDQNL+KItg+2LE/Fdub5t9XEhqPy3SjiYGyS/PIqH700HeDrRpryJIoeEo=
+    server-url: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+    sign-type: RSA2
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: delFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # mapper-locations: classpath:mapper/*.xml
+
+framework:
+  fastjson:
+    safa-mode: true
+  cache:
+    redis:
+      value-timeout: 16
+      value-time-unit: days
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: ${spring.application.name}
