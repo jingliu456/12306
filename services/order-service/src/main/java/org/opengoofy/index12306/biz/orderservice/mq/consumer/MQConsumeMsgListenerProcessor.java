@@ -18,7 +18,6 @@ public class MQConsumeMsgListenerProcessor implements MessageListenerConcurrentl
 
     /**
      * 默认msg里只有一条消息，可以通过设置consumeMessageBatchMaxSize参数来批量接收消息
-     * 不要抛异常，如果没有return CONSUME_SUCCESS ，consumer会重新消费该消息，直到return CONSUME_SUCCESS
      * @param msgList
      * @param consumeConcurrentlyContext
      * @return

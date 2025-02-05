@@ -166,8 +166,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         // 责任链模式 验证城市名称是否存在、不存在加载缓存以及出发日期不能小于当前日期等等
         ticketPageQueryAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_QUERY_FILTER.name(), requestParam);
         StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-        // 列车查询逻辑较为复杂，详细解析文章查看 https://nageoffer.com/12306/question
-        // v1 版本存在严重的性能深渊问题，v2 版本完美的解决了该问题。通过 Jmeter 压测聚合报告得知，性能提升在 300% - 500%+
         List<Object> stationDetails = stringRedisTemplate.opsForHash()
                 .multiGet(REGION_TRAIN_STATION_MAPPING, Lists.newArrayList(requestParam.getFromStation(), requestParam.getToStation()));
         long count = stationDetails.stream().filter(Objects::isNull).count();
@@ -288,9 +286,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         // 责任链模式 验证城市名称是否存在、不存在加载缓存以及出发日期不能小于当前日期等等
         ticketPageQueryAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_QUERY_FILTER.name(), requestParam);
         StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-        // 列车查询逻辑较为复杂，详细解析文章查看 https://nageoffer.com/12306/question
-        // v2 版本更符合企业级高并发真实场景解决方案，完美解决了 v1 版本性能深渊问题。通过 Jmeter 压测聚合报告得知，性能提升在 300% - 500%+
-        // 其实还能有 v3 版本，性能估计在原基础上还能进一步提升一倍。不过 v3 版本太过于复杂，不易读且不易扩展，就不写具体的代码了。面试中 v2 版本已经够和面试官吹的了
         List<Object> stationDetails = stringRedisTemplate.opsForHash()
                 .multiGet(REGION_TRAIN_STATION_MAPPING, Lists.newArrayList(requestParam.getFromStation(), requestParam.getToStation()));
         String buildRegionTrainStationHashKey = String.format(REGION_TRAIN_STATION, stationDetails.get(0), stationDetails.get(1));
@@ -364,8 +359,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     public TicketPurchaseRespDTO purchaseTicketsV1(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
         purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
-        // v1 版本购票存在 4 个较为严重的问题，v2 版本相比较 v1 版本更具有业务特点以及性能，整体提升较大
-        // 写了详细的 v2 版本购票升级指南，详情查看：https://nageoffer.com/12306/question
         String lockKey = environment.resolvePlaceholders(String.format(LOCK_PURCHASE_TICKETS, requestParam.getTrainId()));
         RLock lock = redissonClient.getLock(lockKey);
         lock.lock();
@@ -398,7 +391,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     public TicketPurchaseRespDTO purchaseTicketsV2(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
         purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
-        // 为什么需要令牌限流？余票缓存限流不可以么？详情查看：https://nageoffer.com/12306/question
         TokenResultDTO tokenResult = ticketAvailabilityTokenBucket.takeTokenFromBucket(requestParam);
         if (tokenResult.getTokenIsNull()) {
             Object ifPresentObj = tokenTicketsRefreshMap.getIfPresent(requestParam.getTrainId());
@@ -413,8 +405,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             }
             throw new ServiceException("列车站点已无余票");
         }
-        // v1 版本购票存在 4 个较为严重的问题，v2 版本相比较 v1 版本更具有业务特点以及性能，整体提升较大
-        // 写了详细的 v2 版本购票升级指南，详情查看：https://nageoffer.com/12306/question
         List<ReentrantLock> localLockList = new ArrayList<>();
         List<RLock> distributedLockList = new ArrayList<>();
         Map<Integer, List<PurchaseTicketPassengerDetailDTO>> seatTypeMap = requestParam.getPassengers().stream()
@@ -459,7 +449,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     public TicketPurchaseRespDTO executePurchaseTickets(PurchaseTicketReqDTO requestParam) {
         List<TicketOrderDetailRespDTO> ticketOrderDetailResults = new ArrayList<>();
         String trainId = requestParam.getTrainId();
-        // 节假日高并发购票Redis能扛得住么？详情查看：https://nageoffer.com/12306/question
         TrainDO trainDO = distributedCache.safeGet(
                 TRAIN_INFO + trainId,
                 TrainDO.class,

@@ -218,7 +218,6 @@ public class UserLoginServiceImpl implements UserLoginService {
             throw new ClientException("注销账号与登录账号不一致");
         }
         RLock lock = redissonClient.getLock(USER_DELETION + requestParam.getUsername());
-        // 加锁为什么放在 try 语句外？https://www.yuque.com/magestack/12306/pu52u29i6eb1c5wh
         lock.lock();
         try {
             UserQueryRespDTO userQueryRespDTO = userService.queryUserByUsername(username);

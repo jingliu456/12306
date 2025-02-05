@@ -29,7 +29,6 @@ import java.util.Map;
 public interface BitMapCheckSeat {
 
     /**
-     * 座位是否存在检查方法
      *
      * @param key              缓存Key
      * @param convert          座位统计Map
@@ -39,7 +38,6 @@ public interface BitMapCheckSeat {
     boolean checkSeat(String key, HashMap<Integer, Integer> convert, DistributedCache distributedCache);
 
     /**
-     * 检查座位是否存在 v2 版本
      *
      * @param chooseSeatList 选择座位
      * @param actualSeats    座位状态数组
